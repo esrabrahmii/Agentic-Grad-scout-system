@@ -133,20 +133,26 @@ async def _run_graph(constraints: SearchConstraints):
     }
 
     steps = []
+    discovered_total = max_programs  # fallback until discover node runs
+
     async for step in graph.astream(initial_state):
         steps.append(step)
         node = list(step.keys())[0]
+        state_update = list(step.values())[0]
+
+        # LangGraph can emit None-valued steps for internal bookkeeping
+        if state_update is None:
+            continue
 
         if node == "intake":
             progress.progress(10, text="Constraints loaded...")
         elif node == "discover":
-            n = len(list(step.values())[0].get("discovered_programs", []))
-            progress.progress(30, text=f"Found {n} programs on mastersportal...")
+            discovered_total = len(state_update.get("discovered_programs", [])) or max_programs
+            progress.progress(30, text=f"Found {discovered_total} programs on mastersportal...")
         elif node == "research":
-            idx = list(step.values())[0].get("research_index", 0)
-            total = len(initial_state.get("discovered_programs", [])) or max_programs
-            pct = 30 + int(60 * idx / max(total, 1))
-            progress.progress(min(pct, 89), text=f"Researching program {idx}/{total}...")
+            idx = state_update.get("research_index", 0)
+            pct = 30 + int(60 * idx / max(discovered_total, 1))
+            progress.progress(min(pct, 89), text=f"Researching program {idx}/{discovered_total}...")
         elif node == "rank":
             progress.progress(92, text="Ranking programs...")
         elif node == "output":
@@ -156,7 +162,8 @@ async def _run_graph(constraints: SearchConstraints):
     final = {}
     for step in steps:
         for v in step.values():
-            final.update(v)
+            if v is not None:
+                final.update(v)
     return final
 
 
