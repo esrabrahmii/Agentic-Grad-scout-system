@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "grad-scout"
+version = "0.1.0"
+description = "LangGraph agent that finds and ranks graduate programs matching your profile"
+requires-python = ">=3.11"
+dependencies = [
+    # LangGraph + LangChain
+    "langgraph>=0.2.0",
+    "langchain>=0.3.0",
+    "langchain-groq>=0.2.0",
+    "langchain-openai>=0.2.0",
+    # Browser automation
+    "playwright>=1.44.0",
+    # Pydantic
+    "pydantic>=2.7.0",
+    "pydantic-settings>=2.3.0",
+    # PDF parsing
+    "pypdf>=4.0.0",
+    # HTML parsing
+    "beautifulsoup4>=4.12.0",
+    "lxml>=5.2.0",
+    # Streamlit UI
+    "streamlit>=1.35.0",
+    # Utilities
+    "httpx>=0.27.0",
+    "structlog>=24.2.0",
+    "tenacity>=8.3.0",
+    "python-dotenv>=1.0.0",
+    "rich>=13.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.2.0",
+    "pytest-asyncio>=0.23.0",
+    "pytest-mock>=3.14.0",
+    "ruff>=0.4.0",
+    "mypy>=1.10.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = false
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
